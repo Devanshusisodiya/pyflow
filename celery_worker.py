@@ -5,8 +5,8 @@ from celery import Celery
 # from common.repository import repository
 
 def initialize_supabase_client():
-    url = "https://bgmgoumpqknyexxrjmji.supabase.co" #os.environ.get("SUPABASE_URL")
-    key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnbWdvdW1wcWtueWV4eHJqbWppIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcwMzc1MjQ1NywiZXhwIjoyMDE5MzI4NDU3fQ.yyyapRQwLl83Bv6H9fbr63oEfvdU-LhIidXCH1bJgOA" #os.environ.get("SUPABASE_KEY")
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
     client = create_client(url, key)
     return client
 
