@@ -2,7 +2,10 @@
 import pika, os, sys
 from supabase import create_client
 from celery import Celery
-# from common.repository import repository
+from dotenv import load_dotenv
+
+# load the environment variables
+load_dotenv()
 
 def initialize_supabase_client():
     url = os.environ.get("SUPABASE_URL")
