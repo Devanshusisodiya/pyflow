@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "supa-workflows"
+version = "0.1.0"
+description = "Workflows written in Python, supported by Celery and RabbitMQ"
+authors = ["devanshu <devanshukumar45@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
