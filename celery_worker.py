@@ -3,6 +3,7 @@ import pika, os, sys
 from supabase import create_client
 from celery import Celery
 from dotenv import load_dotenv
+from tasks import repository
 
 # load the environment variables
 load_dotenv()
@@ -15,7 +16,7 @@ def initialize_supabase_client():
 
 # create a supabase client
 client = initialize_supabase_client()
-app = Celery('workflows')
+app = Celery('workflows', broker="amqp://localhost")
 app.config_from_object('celeryconfig')
 app.autodiscover_tasks(packages=['tasks'], force=True)
 
@@ -31,6 +32,11 @@ def parse_workflows(trigger, workflows):
         if workflow["trigger"] == trigger:
             actions = workflow["actions"]
             print(actions)
+
+            try:
+                repository["send_email"].apply_async()
+            except Exception as e:
+                print(f"error {e}")
             # try:
             #     repository[actions["first"]["action"]].apply_async(
             #         # args=[actions["first"]["details"]]
