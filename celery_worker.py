@@ -16,9 +16,12 @@ def initialize_supabase_client():
 
 # create a supabase client
 client = initialize_supabase_client()
-app = Celery('workflows', broker="amqp://localhost")
-app.config_from_object('celeryconfig')
-app.autodiscover_tasks(packages=['tasks'], force=True)
+celery_app = Celery('workflows', broker="amqp://localhost")
+celery_app.autodiscover_tasks(
+    packages=["tasks"],
+    related_name="action",
+    force=True
+)
 
 
 def get_workflows():
@@ -30,21 +33,18 @@ def parse_workflows(trigger, workflows):
     # and run the task scheduler
     for workflow in workflows:
         if workflow["trigger"] == trigger:
-            actions = workflow["actions"]
-            print(actions)
-
+            actions_map = workflow["actions"]
+            print(actions_map)
             try:
-                repository["send_email"].apply_async()
+                repository[actions_map["first"]["action"]].apply_async(
+                    args=[
+                        actions_map["first"]["details"], # this arg will contain the details required by the action
+                        actions_map, # this arg will contain the entire workflow to access other actions
+                        repository # this arg will contain the entire repository to access other tasks
+                    ]
+                )
             except Exception as e:
-                print(f"error {e}")
-            # try:
-            #     repository[actions["first"]["action"]].apply_async(
-            #         # args=[actions["first"]["details"]]
-            #     )
-            # except Exception as e:
-            #     print(f"error {e}")
-            
-            # INFO: This is where the action runner function is invoked
+                print(f"ERROR: {e}")
 
 def callback(ch, method, properties, body):
     trigger_name = body.decode("utf-8")
