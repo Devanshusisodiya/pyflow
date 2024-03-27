@@ -1,4 +1,3 @@
-from celery import shared_task
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -8,15 +7,14 @@ import os
 # load environment variables
 load_dotenv()
 
-@shared_task
-def send_email(details, actions_map, repository):
+def send_email(details):
     try:
         # Email configuration
         sender_email = details["sender"]
         receiver_email = details["receiver"]
 
         # create the mail
-        message = MIMEMultipart()
+        message = MIMEMultipart() 
         message["From"] = sender_email
         message["To"] = receiver_email
         message["Subject"] = "I AM A FUCKING BILLIONAIRE" #details["subject"]
@@ -36,11 +34,8 @@ def send_email(details, actions_map, repository):
         
         if not err:
             print("INFO: Email sent successfully!")
-            # schedule the next task
-            repository[actions_map[details["next_action"]]["action"]].apply_async(
-                actions_map[details["next_action"]]["details"],
-                repository
-            )
+        else:
+            print("ERROR: Could not send email ", err)
 
     except Exception as e:
         print(f"ERROR: {e}")

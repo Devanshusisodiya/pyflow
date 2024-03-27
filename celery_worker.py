@@ -1,9 +1,8 @@
-#!/usr/bin/env python
 import pika, os, sys
 from supabase import create_client
 from celery import Celery
 from dotenv import load_dotenv
-from tasks import repository
+from action_runner import action_runner
 
 # load the environment variables
 load_dotenv()
@@ -18,7 +17,7 @@ def initialize_supabase_client():
 client = initialize_supabase_client()
 celery_app = Celery('workflows', broker="amqp://localhost")
 celery_app.autodiscover_tasks(
-    packages=["tasks"],
+    packages=["action_runner"],
     related_name="action",
     force=True
 )
@@ -36,15 +35,14 @@ def parse_workflows(trigger, workflows):
             actions_map = workflow["actions"]
             print(actions_map)
             try:
-                repository[actions_map["first"]["action"]].apply_async(
+                action_runner.apply_async(
                     args=[
-                        actions_map["first"]["details"], # this arg will contain the details required by the action
-                        actions_map, # this arg will contain the entire workflow to access other actions
-                        repository # this arg will contain the entire repository to access other tasks
+                        actions_map,
+                        "first"
                     ]
                 )
             except Exception as e:
-                print(f"ERROR: {e}")
+                print(f"ERROR: something wrong with parsing {e}")
 
 def callback(ch, method, properties, body):
     trigger_name = body.decode("utf-8")
