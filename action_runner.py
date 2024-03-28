@@ -28,3 +28,5 @@ def action_runner(actions_map, action_index_string):
         )
     except Exception as err:
         print(f"ERROR: something wrong with next action scheduling - {err}")
+
+    return
