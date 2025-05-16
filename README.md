@@ -1,2 +1,2 @@
 # supa-workflows
-Workflows written in Python, supported by Celery and RabbitMQ
+Workflows engine written in Python, supported by Celery and RabbitMQ
